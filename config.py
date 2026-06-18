@@ -13,7 +13,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 # LLM model to use - swapping this one line changes the model everywhere
-LLM_MODEL = "gemini-2.0-flash"
+LLM_MODEL = "gemini-1.5-flash"
 
 # Minimum qualifier score (0-100) to proceed with application
 QUALIFIER_THRESHOLD = 60
