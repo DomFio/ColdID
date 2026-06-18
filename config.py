@@ -1,5 +1,16 @@
 # config.py
 # Global configuration settings for ColdIQ pipeline
+# Loads API keys from .env file securely using python-dotenv
+
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# API Keys - loaded from .env, never hardcoded
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 # LLM model to use - swapping this one line changes the model everywhere
 LLM_MODEL = "gemini-2.0-flash"
