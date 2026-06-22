@@ -1,12 +1,13 @@
-# agents/drafter.py
+## agents/drafter.py
 # Drafter Agent - third agent in the ColdIQ pipeline
 # Takes job listing, qualifier reasoning, and hiring manager info from state
 # Queries RAG system for relevant applicant experience
 # Writes a personalized cold email grounded in real experience
 
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from config import LLM_MODEL
 from state import ColdIQState
+from rag import retrieve_context
 
 def drafter_agent(state: ColdIQState) -> dict:
     """
@@ -16,7 +17,11 @@ def drafter_agent(state: ColdIQState) -> dict:
     """
 
     # Initialize the LLM
-    llm = ChatGoogleGenerativeAI(model=LLM_MODEL)
+    llm = ChatOpenAI(model=LLM_MODEL)
+
+    # Query the RAG system for relevant candidate experience
+    query = f"{state['job_title']} {state['qualifier_reasoning']}"
+    candidate_context = retrieve_context(query, k=4)
 
     # Prompt uses everything accumulated in state so far
     prompt = f"""
@@ -34,7 +39,7 @@ def drafter_agent(state: ColdIQState) -> dict:
     {state['qualifier_reasoning']}
 
     Candidate Experience:
-    [RAG RETRIEVAL WILL GO HERE]
+    {candidate_context}
 
     Reviewer Feedback from previous draft (if any):
     {state.get('review_feedback', 'None - this is the first draft')}
@@ -48,6 +53,9 @@ def drafter_agent(state: ColdIQState) -> dict:
     - Do not use phrases like "I am passionate" or "I am a quick learner"
     - End with a clear call to action
     - Do not mention this email was AI generated
+    - Sign off with this exact signature:
+      Dominic Fiorelli
+      linkedin.com/in/dominicfiorelli-13794a238
 
     Return only the email text, nothing else.
     """

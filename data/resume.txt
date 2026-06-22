@@ -1,0 +1,52 @@
+DOMINIC FIORELLI
+(847) 361-7167 | DominicFiorelli@gmail.com
+GitHub: github.com/DomFIo | LinkedIn: linkedin.com/in/dominicfiorelli-13794a238
+
+EDUCATION
+DePaul University, Chicago, IL
+Bachelor of Science in Computer Science | GPA: 3.7/4.0 | Expected Graduation: December 2026
+Relevant Coursework: Artificial Intelligence, Design & Analysis of Algorithms, Database Systems, Object-Oriented Software Development, Foundations of Data Science, Programming Languages
+
+TECHNICAL SKILLS
+Languages: Python, Java, SQL, Scala, C, JavaScript, TypeScript, HTML, CSS, R
+AI/ML & Agentic Tooling: LangChain, LangGraph, FAISS, HuggingFace Transformers, RAG pipelines, OpenAI API, Multi-Agent Systems, Prompt Engineering, NLP
+Frameworks & Tools: React, Flask, Node.js, Git, PostgreSQL, Firebase, JUnit, Maven, REST APIs, FastMCP, CI/CD, Playwright
+
+PROJECTS
+
+Multi-Agent Prompt Injection Detection System | LangGraph, OpenAI API, Python
+- Designed a 3-agent parallel fan-out/fan-in LangGraph architecture where Intent Analysis and Instruction Hierarchy agents run concurrently, synthesized by a Risk Classification agent into a final security verdict
+- Achieved 83.3% accuracy and 0.789 Macro F1 score detecting adversarial prompt injection attempts across a labeled conversation dataset
+- Implemented structured JSON output parsing and systematic error analysis to identify and correct misclassification patterns
+
+RAG Pipeline for Document Q&A | LangChain, FAISS, HuggingFace, OpenAI
+- Built a retrieval-augmented generation pipeline using LangChain and FAISS for vector storage, with HuggingFace embeddings for semantic search over document collections
+- Integrated gpt-4o-mini to generate context-grounded answers, reducing hallucination by retrieving relevant source passages before generation
+
+ColdIQ - AI-Powered Job Application Pipeline | LangGraph, RAG, FAISS, OpenAI, Tavily
+- Designing a 4-agent LangGraph pipeline that qualifies job fit, locates hiring managers, and drafts personalized cold outreach emails grounded in a RAG-based knowledge base
+- Implemented a conditional reviewer-drafter revision loop with configurable retry limits to iteratively improve email quality against a defined rubric
+
+MCP-Based Automated Testing Agent | FastMCP, Java, JUnit, Playwright, CI/CD
+- Built an autonomous testing agent using the Model Context Protocol (MCP) and FastMCP to iteratively generate, execute, and refine test cases against an LLM-enabled Spring Boot application
+- Achieved 98.3% JaCoCo instruction coverage through 33 JUnit tests generated and refined via coverage feedback loops
+- Implemented a CI/CD pipeline with Playwright for automated UI testing, engineering workarounds for anti-bot detection during automated test runs
+
+AI-Powered Schedule Assistant | Python, Claude API, NLP
+- Developed an intelligent scheduling application integrating the Claude API for conversational task and calendar management
+- Implemented natural language processing enabling users to query and modify schedules through AI-driven interactions
+
+EXPERIENCE
+
+Software Engineer, Coding Temple | March 2022 - May 2022
+- Built scalable Flask applications using object-oriented programming with emphasis on code efficiency and maintainability
+- Developed multi-page React applications utilizing components, state management, and routing for dynamic user interfaces
+- Integrated database functionality and RESTful APIs into full-stack projects enabling persistent data storage and retrieval
+
+Delivery Driver, Amazon | 2023 - Present
+- Consistently met delivery performance metrics while managing time-sensitive logistics and route optimization
+- Demonstrated strong problem-solving and adaptability managing dynamic route changes and delivery challenges
+
+2nd Assistant Manager, Zumiez | March 2018 - 2023
+- Managed inventory systems and coordinated seasonal displays, achieving annual sales average exceeding $300,000
+- Trained and mentored 10+ staff members on sales techniques, POS systems, and customer service best practices

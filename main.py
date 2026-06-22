@@ -89,24 +89,43 @@ if __name__ == "__main__":
     app = build_graph()
 
     # Test input - we'll replace this with real input later
-    test_input = {
-        "job_title": "Machine Learning Engineer",
-        "company_name": "Acme Corp",
-        "job_description": "We are looking for an ML engineer with experience in Python, LangChain, and RAG systems.",
-        "required_skills": ["Python", "LangChain", "RAG", "SQL"],
-        "qualifier_score": 0,
-        "qualifier_reasoning": "",
-        "hiring_manager_name": "",
-        "hiring_manager_title": "",
-        "hiring_manager_linkedin": "",
-        "hiring_manager_email": "",
-        "draft_email": "",
-        "review_feedback": "",
-        "approved": False,
-        "review_loops": 0,
-        "date_applied": "",
-        "outcome": ""
-    }
+test_input = {
+    "job_title": "Software Engineer",
+    "company_name": "Test Company",
+    "job_description": "Test job description.",
+    "required_skills": ["Python", "SQL"],   
+    "qualifier_score": 0,
+    "qualifier_reasoning": "",
+    "hiring_manager_name": "",
+    "hiring_manager_title": "",
+    "hiring_manager_linkedin": "",
+    "hiring_manager_email": "",
+    "draft_email": "",
+    "review_feedback": "",
+    "approved": False,
+    "review_loops": 0,
+    "date_applied": "",
+    "outcome": ""
+}
 
-    result = app.invoke(test_input)
-    print(result)
+result = app.invoke(test_input)
+# print(result)
+
+
+print("\n" + "="*60)
+print("COLDIQ PIPELINE RESULTS")
+print("="*60)
+print(f"\nJob: {result['job_title']} at {result['company_name']}")
+print(f"Qualifier Score: {result['qualifier_score']}/100")
+print(f"\nQualifier Reasoning:\n{result['qualifier_reasoning']}")
+print(f"\nHiring Manager: {result['hiring_manager_name']} ({result['hiring_manager_title']})")
+print(f"LinkedIn: {result['hiring_manager_linkedin']}")
+print(f"\n{'='*60}")
+print("DRAFT EMAIL:")
+print("="*60)
+print(result['draft_email'])
+print(f"\n{'='*60}")
+print(f"Approved: {result['approved']}")
+print(f"Review Loops: {result['review_loops']}")
+print(f"Final Feedback: {result['review_feedback']}")
+print("="*60)

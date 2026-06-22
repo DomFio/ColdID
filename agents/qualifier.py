@@ -3,9 +3,10 @@
 # Takes the job listing and scores how well the applicant matches
 # If score is below the threshold in config.py, the pipeline stops here
 
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from config import LLM_MODEL, QUALIFIER_THRESHOLD
 from state import ColdIQState
+from rag import retrieve_context
 
 def qualifier_agent(state: ColdIQState) -> dict:
     """
@@ -15,7 +16,11 @@ def qualifier_agent(state: ColdIQState) -> dict:
     """
 
     # Initialize the LLM
-    llm = ChatGoogleGenerativeAI(model=LLM_MODEL)
+    llm = ChatOpenAI(model=LLM_MODEL)
+
+    # Query the RAG system for relevant candidate info based on the job requirements
+    query = f"{state['job_title']} {' '.join(state['required_skills'])}"
+    candidate_context = retrieve_context(query, k=4)
 
     # Prompt tells the LLM exactly what to do and how to respond
     prompt = f"""
@@ -28,7 +33,7 @@ def qualifier_agent(state: ColdIQState) -> dict:
     Required Skills: {state['required_skills']}
 
     Candidate Information:
-    [RAG RETRIEVAL WILL GO HERE]
+    {candidate_context}
 
     Return your response in this exact format:
     SCORE: <number>
