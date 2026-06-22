@@ -17,3 +17,6 @@ __pycache__/
 
 # Logs (optional, remove if you want logs tracked)
 logs/
+
+# Job descripition workaround until UI is built
+job.txt

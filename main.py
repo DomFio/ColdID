@@ -36,6 +36,40 @@ def should_continue_after_review(state: ColdIQState) -> str:
         return "approved"
     return "revise"
 
+def extract_skills(job_description: str) -> list[str]:
+    """
+    Uses the LLM to automatically extract required skills from a job description.
+    Saves the user from having to manually identify and list skills.
+    """
+    from langchain_openai import ChatOpenAI
+    from config import LLM_MODEL
+
+    llm = ChatOpenAI(model=LLM_MODEL)
+
+    prompt = f"""
+    Extract the key required technical skills and technologies from this job description.
+    Return ONLY a Python list of strings, nothing else. No explanation, no preamble.
+    Focus on specific technologies, languages, frameworks, and tools.
+    Limit to the 8 most important ones.
+
+    Example output format:
+    ["Python", "LangChain", "SQL", "HuggingFace", "RAG", "Git"]
+
+    Job Description:
+    {job_description}
+    """
+
+    response = llm.invoke(prompt)
+
+    # Parse the list from the response
+    import ast
+    try:
+        skills = ast.literal_eval(response.content.strip())
+        return skills
+    except:
+        # Fallback if parsing fails
+        return ["Python", "SQL"]
+
 # ---- BUILD THE GRAPH ----
 
 def build_graph():
@@ -88,44 +122,98 @@ def build_graph():
 if __name__ == "__main__":
     app = build_graph()
 
-    # Test input - we'll replace this with real input later
-test_input = {
-    "job_title": "Software Engineer",
-    "company_name": "Test Company",
-    "job_description": "Test job description.",
-    "required_skills": ["Python", "SQL"],   
-    "qualifier_score": 0,
-    "qualifier_reasoning": "",
-    "hiring_manager_name": "",
-    "hiring_manager_title": "",
-    "hiring_manager_linkedin": "",
-    "hiring_manager_email": "",
-    "draft_email": "",
-    "review_feedback": "",
-    "approved": False,
-    "review_loops": 0,
-    "date_applied": "",
-    "outcome": ""
-}
+    # ---- CLI INPUT FLOW ----
+    print("\n" + "="*60)
+    print("Welcome to ColdIQ — AI-Powered Job Application Pipeline")
+    print("="*60 + "\n")
 
-result = app.invoke(test_input)
-# print(result)
+    # Collect job info
+    job_title = input("Job Title: ").strip()
+    company_name = input("Company Name: ").strip()
 
+    # Collect job description from file or manual input
+    print("\nHow would you like to provide the job description?")
+    print("1 - Read from job.txt file")
+    print("2 - Paste manually")
+    jd_choice = input("\nChoice (1 or 2): ").strip()
 
-print("\n" + "="*60)
-print("COLDIQ PIPELINE RESULTS")
-print("="*60)
-print(f"\nJob: {result['job_title']} at {result['company_name']}")
-print(f"Qualifier Score: {result['qualifier_score']}/100")
-print(f"\nQualifier Reasoning:\n{result['qualifier_reasoning']}")
-print(f"\nHiring Manager: {result['hiring_manager_name']} ({result['hiring_manager_title']})")
-print(f"LinkedIn: {result['hiring_manager_linkedin']}")
-print(f"\n{'='*60}")
-print("DRAFT EMAIL:")
-print("="*60)
-print(result['draft_email'])
-print(f"\n{'='*60}")
-print(f"Approved: {result['approved']}")
-print(f"Review Loops: {result['review_loops']}")
-print(f"Final Feedback: {result['review_feedback']}")
-print("="*60)
+    if jd_choice == "1":
+        try:
+            with open("job.txt", "r", encoding="utf-8") as f:
+                job_description = f.read().strip()
+            print("✓ Job description loaded from job.txt")
+        except FileNotFoundError:
+            print("job.txt not found. Switching to manual input.")
+            jd_choice = "2"
+
+    if jd_choice == "2":
+        print("\nPaste the Job Description (press Enter twice when done):")
+        lines = []
+        while True:
+            line = input()
+            if line == "":
+                if lines:
+                    break
+            else:
+                lines.append(line)
+        job_description = "\n".join(lines)
+
+    # Auto extract skills
+    print("\nExtracting required skills from job description...")
+    required_skills = extract_skills(job_description)
+    print(f"✓ Skills identified: {required_skills}")
+
+    # Ask about hiring manager
+    print("\nDo you know the hiring manager? (y/n): ", end="")
+    knows_hiring_manager = input().strip().lower()
+
+    hiring_manager_name = ""
+    hiring_manager_title = ""
+    hiring_manager_linkedin = ""
+
+    if knows_hiring_manager == "y":
+        hiring_manager_name = input("Hiring Manager Name: ").strip()
+        hiring_manager_title = input("Hiring Manager Title: ").strip()
+        hiring_manager_linkedin = input("Hiring Manager LinkedIn (or leave blank): ").strip()
+
+    print("\nRunning ColdIQ pipeline...\n")
+
+    # Build the input state
+    pipeline_input = {
+        "job_title": job_title,
+        "company_name": company_name,
+        "job_description": job_description,
+        "required_skills": required_skills,
+        "qualifier_score": 0,
+        "qualifier_reasoning": "",
+        "hiring_manager_name": hiring_manager_name,
+        "hiring_manager_title": hiring_manager_title,
+        "hiring_manager_linkedin": hiring_manager_linkedin,
+        "hiring_manager_email": "",
+        "draft_email": "",
+        "review_feedback": "",
+        "approved": False,
+        "review_loops": 0,
+        "date_applied": "",
+        "outcome": ""
+    }
+
+    result = app.invoke(pipeline_input)
+
+    print("\n" + "="*60)
+    print("COLDIQ PIPELINE RESULTS")
+    print("="*60)
+    print(f"\nJob: {result['job_title']} at {result['company_name']}")
+    print(f"Qualifier Score: {result['qualifier_score']}/100")
+    print(f"\nQualifier Reasoning:\n{result['qualifier_reasoning']}")
+    print(f"\nHiring Manager: {result['hiring_manager_name']} ({result['hiring_manager_title']})")
+    print(f"LinkedIn: {result['hiring_manager_linkedin']}")
+    print(f"\n{'='*60}")
+    print("DRAFT EMAIL:")
+    print("="*60)
+    print(result['draft_email'])
+    print(f"\n{'='*60}")
+    print(f"Approved: {result['approved']}")
+    print(f"Review Loops: {result['review_loops']}")
+    print(f"Final Feedback: {result['review_feedback']}")
+    print("="*60)
