@@ -67,3 +67,27 @@ def retrieve_context(query: str, k: int = 3) -> str:
 
     context = "\n\n---\n\n".join([doc.page_content for doc in results])
     return context
+
+def build_vector_store_from_text(text: str):
+    """
+    Builds a FAISS vector store from a string of text.
+    Used when a user uploads their resume directly via the UI
+    rather than reading from the data/ folder.
+    """
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,
+        chunk_overlap=50
+    )
+    chunks = text_splitter.split_text(text)
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    vector_store = FAISS.from_texts(chunks, embeddings)
+    return vector_store
+
+
+def set_vector_store(vector_store):
+    """
+    Allows the UI to inject a user uploaded vector store
+    into the global cache so all agents use it for that session.
+    """
+    global _vector_store
+    _vector_store = vector_store

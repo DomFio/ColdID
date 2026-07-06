@@ -108,16 +108,64 @@ with st.sidebar:
     st.markdown("*AI-Powered Job Application Pipeline*")
     st.markdown("---")
 
+    # Resume upload
+    st.markdown("### Your Resume")
+    resume_source = st.radio("Resume source", ["Upload PDF", "Upload TXT", "Paste text"])
+
+    resume_text = ""
+    if resume_source == "Upload PDF":
+        resume_file = st.file_uploader("Upload your resume (PDF)", type="pdf")
+        if resume_file:
+            import pdfplumber
+            import io
+            with pdfplumber.open(io.BytesIO(resume_file.read())) as pdf:
+                resume_text = "\n".join([page.extract_text() or "" for page in pdf.pages])
+            st.success("✓ Resume loaded")
+    elif resume_source == "Upload TXT":
+        resume_file = st.file_uploader("Upload your resume (TXT)", type="txt")
+        if resume_file:
+            resume_text = resume_file.read().decode("utf-8")
+            st.success("✓ Resume loaded")
+    else:
+        resume_text = st.text_area("Paste your resume", height=150, placeholder="Paste your resume text here...")
+
+    st.markdown("---")
+
     st.markdown("### Job Details")
-    job_title = st.text_input("Job Title", placeholder="e.g. ML Engineer")
-    company_name = st.text_input("Company Name", placeholder="e.g. Acme Corp")
+
+    # URL fetch option
+    job_url = st.text_input("Job Posting URL (optional)", placeholder="Paste LinkedIn or Indeed URL...")
+    fetch_button = st.button("🔍 Fetch Job Details", use_container_width=True)
+
+    # Session state to hold fetched values
+    if "fetched_title" not in st.session_state:
+        st.session_state.fetched_title = ""
+    if "fetched_company" not in st.session_state:
+        st.session_state.fetched_company = ""
+    if "fetched_description" not in st.session_state:
+        st.session_state.fetched_description = ""
+
+    if fetch_button and job_url:
+        with st.spinner("Fetching job details from URL..."):
+            from job_fetcher import fetch_job_from_url
+            fetched = fetch_job_from_url(job_url)
+            if "error" in fetched:
+                st.error(fetched["error"])
+            else:
+                st.session_state.fetched_title = fetched.get("job_title", "")
+                st.session_state.fetched_company = fetched.get("company_name", "")
+                st.session_state.fetched_description = fetched.get("job_description", "")
+                st.success("✓ Job details fetched successfully")
+
+    job_title = st.text_input("Job Title", value=st.session_state.fetched_title, placeholder="e.g. ML Engineer")
+    company_name = st.text_input("Company Name", value=st.session_state.fetched_company, placeholder="e.g. Acme Corp")
 
     st.markdown("### Job Description")
     jd_source = st.radio("Source", ["Paste text", "Upload job.txt"], horizontal=True)
 
     job_description = ""
     if jd_source == "Paste text":
-        job_description = st.text_area("Job Description", height=200, placeholder="Paste the full job description here...")
+        job_description = st.text_area("Job Description", value=st.session_state.fetched_description, height=200, placeholder="Paste the full job description here...")
     else:
         uploaded = st.file_uploader("Upload job.txt", type="txt")
         if uploaded:
@@ -154,6 +202,15 @@ else:
     if not job_title or not company_name or not job_description:
         st.error("Please fill in Job Title, Company Name, and Job Description before running.")
     else:
+        # Build RAG from uploaded resume
+        if resume_text:
+            with st.spinner("Building knowledge base from your resume..."):
+                from rag import build_vector_store_from_text, set_vector_store
+                vector_store = build_vector_store_from_text(resume_text)
+                set_vector_store(vector_store)
+        else:
+            st.warning("No resume provided — using default knowledge base from data/resume.txt")
+
         # Extract skills
         with st.spinner("Extracting required skills..."):
             required_skills = extract_skills(job_description)
@@ -228,7 +285,7 @@ else:
             # Approve / reject buttons
             st.markdown("---")
             st.markdown('<div class="section-header">Human Approval</div>', unsafe_allow_html=True)
-            
+
             approve_col, reject_col = st.columns(2)
             with approve_col:
                 if st.button("✅ Approve & Send", use_container_width=True):
@@ -236,4 +293,3 @@ else:
             with reject_col:
                 if st.button("❌ Reject & Rerun", use_container_width=True):
                     st.warning("Rerunning pipeline with feedback...")
-                
