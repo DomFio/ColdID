@@ -1,5 +1,5 @@
 # app.py
-# Streamlit UI for ColdIQ
+# Streamlit UI for ColdID
 # Run with: streamlit run app.py
 
 import streamlit as st
@@ -7,7 +7,7 @@ from main import build_graph, extract_skills
 
 # ---- PAGE CONFIG ----
 st.set_page_config(
-    page_title="ColdIQ",
+    page_title="ColdID",
     page_icon="🎯",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -104,7 +104,7 @@ st.markdown("""
 
 # ---- SIDEBAR — JOB INPUT ----
 with st.sidebar:
-    st.markdown("# 🎯 ColdIQ")
+    st.markdown("# 🎯 ColdID")
     st.markdown("*AI-Powered Job Application Pipeline*")
     st.markdown("---")
 
@@ -184,14 +184,14 @@ with st.sidebar:
         hiring_manager_linkedin = st.text_input("LinkedIn URL")
 
     st.markdown("---")
-    run_button = st.button("🚀 Run ColdIQ", use_container_width=True)
+    run_button = st.button("🚀 Run ColdID", use_container_width=True)
 
 # ---- MAIN AREA ----
 if not run_button:
-    st.markdown("## Welcome to ColdIQ")
-    st.markdown("Fill in the job details in the sidebar and click **Run ColdIQ** to start the pipeline.")
+    st.markdown("## Welcome to ColdID")
+    st.markdown("Fill in the job details in the sidebar and click **Run ColdID** to start the pipeline.")
     st.markdown("""
-    **What ColdIQ does:**
+    **What ColdID does:**
     1. 🎯 **Qualifies** how well you match the role
     2. 🔍 **Finds** the hiring manager automatically
     3. ✍️ **Drafts** a personalized cold email grounded in your real experience
@@ -238,7 +238,7 @@ else:
         }
 
         # Run the pipeline
-        with st.spinner("Running ColdIQ pipeline..."):
+        with st.spinner("Running ColdID pipeline..."):
             app = build_graph()
             result = app.invoke(pipeline_input)
 
