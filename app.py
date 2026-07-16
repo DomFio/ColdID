@@ -242,7 +242,7 @@ else:
             app = build_graph()
             result = app.invoke(pipeline_input)
 
-            
+
             # Save application log if email was approved
         if result.get('approved') and result.get('draft_email'):
             from logger import save_application_log
@@ -301,3 +301,72 @@ else:
             with reject_col:
                 if st.button("❌ Reject & Rerun", use_container_width=True):
                     st.warning("Rerunning pipeline with feedback...")
+
+
+# ---- APPLICATION HISTORY ----
+st.markdown("---")
+st.markdown("## 📋 Application History")
+
+from logger import load_all_logs
+logs = load_all_logs()
+
+if not logs:
+    st.info("No applications logged yet. Run the pipeline to start tracking your applications.")
+else:
+    # Summary stats
+    total = len(logs)
+    responded = len([l for l in logs if l.get('outcome') == 'responded'])
+    interviews = len([l for l in logs if l.get('outcome') == 'interview'])
+    avg_score = round(sum([l.get('qualifier_score', 0) for l in logs]) / total)
+
+    stat1, stat2, stat3, stat4 = st.columns(4)
+    with stat1:
+        st.metric("Total Applications", total)
+    with stat2:
+        st.metric("Responses", responded)
+    with stat3:
+        st.metric("Interviews", interviews)
+    with stat4:
+        st.metric("Avg Qualifier Score", f"{avg_score}/100")
+
+    st.markdown("---")
+
+    # Application table
+    for log in logs:
+        score = log.get('qualifier_score', 0)
+        score_color = "🟢" if score >= 80 else "🟡" if score >= 60 else "🔴"
+        outcome = log.get('outcome', 'pending')
+        outcome_color = "🟢" if outcome == 'interview' else "🔵" if outcome == 'responded' else "⚪" if outcome == 'pending' else "🔴"
+
+        with st.expander(f"{score_color} {log.get('company')} — {log.get('job_title')} | {log.get('date_applied')} | {outcome_color} {outcome.capitalize()}"):
+            col1, col2 = st.columns([1, 2])
+
+            with col1:
+                st.markdown(f"**Qualifier Score:** {score}/100")
+                st.markdown(f"**Hiring Manager:** {log.get('hiring_manager_name') or 'Not found'}")
+                st.markdown(f"**Review Loops:** {log.get('review_loops')}")
+                st.markdown(f"**Outcome:** {outcome.capitalize()}")
+
+                # Outcome updater
+                new_outcome = st.selectbox(
+                    "Update outcome",
+                    ["pending", "responded", "interview", "rejected", "no response"],
+                    index=["pending", "responded", "interview", "rejected", "no response"].index(outcome),
+                    key=f"outcome_{log.get('company')}_{log.get('date_applied')}"
+                )
+                if new_outcome != outcome:
+                    from logger import update_outcome
+                    update_outcome(log.get('company'), log.get('job_title'), new_outcome)
+                    st.rerun()
+
+                # Delete button
+                if st.button("🗑️ Delete", key=f"delete_{log.get('company')}_{log.get('date_applied')}"):
+                    from logger import delete_log
+                    delete_log(log.get('company'), log.get('job_title'), log.get('date_applied'))
+                    st.rerun()
+
+            with col2:
+                st.markdown("**Qualifier Reasoning:**")
+                st.caption(log.get('qualifier_reasoning', ''))
+                st.markdown("**Draft Email:**")
+                st.code(log.get('email_sent', ''), language=None)

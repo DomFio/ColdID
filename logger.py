@@ -96,3 +96,28 @@ def update_outcome(company: str, job_title: str, outcome: str) -> bool:
                 return True
 
     return False
+
+def delete_log(company: str, job_title: str, date_applied: str) -> bool:
+    """
+    Deletes a specific log entry by matching company, job title, and date.
+    Returns True if deleted successfully.
+    """
+    if not os.path.exists(LOG_PATH):
+        return False
+
+    for filename in os.listdir(LOG_PATH):
+        if filename.endswith(".json"):
+            filepath = os.path.join(LOG_PATH, filename)
+            with open(filepath, "r") as f:
+                try:
+                    log = json.load(f)
+                except:
+                    continue
+
+            if (log.get("company") == company and
+                log.get("job_title") == job_title and
+                log.get("date_applied") == date_applied):
+                os.remove(filepath)
+                return True
+
+    return False
