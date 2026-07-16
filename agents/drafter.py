@@ -55,7 +55,7 @@ def drafter_agent(state: ColdIQState) -> dict:
     - Do not mention this email was AI generated
     - Sign off with this exact signature:
       Dominic Fiorelli
-      linkedin.com/in/dominicfiorelli-13794a238
+      linkedin.com/in/dominic-fiorelli-13794a238
 
     Return only the email text, nothing else.
     """

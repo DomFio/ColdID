@@ -242,6 +242,14 @@ else:
             app = build_graph()
             result = app.invoke(pipeline_input)
 
+            
+            # Save application log if email was approved
+        if result.get('approved') and result.get('draft_email'):
+            from logger import save_application_log
+            log_path = save_application_log(result)
+            st.success(f"✓ Application logged successfully")
+        
+
         # ---- RESULTS ----
         st.markdown("---")
 
